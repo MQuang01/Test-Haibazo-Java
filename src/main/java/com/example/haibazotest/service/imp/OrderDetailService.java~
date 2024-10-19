@@ -1,0 +1,4 @@
+package com.example.haibazotest.service.imp;
+
+public class OrderDetailService {
+}

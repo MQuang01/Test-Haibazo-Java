@@ -1,0 +1,82 @@
+package com.example.haibazotest.until;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ObjectMapper {
+    /**
+     * Ánh xạ các field không null từ đối tượng nguồn (source) sang đối tượng đích (target).
+     * Chỉ thực hiện nếu getter từ DTO có setter tương ứng trong entity.
+     */
+    public static <S, T> void mapNonNullFields(S source, T target) {
+        if (source == null || target == null) {
+            throw new IllegalArgumentException("Source and target must not be null");
+        }
+
+        // Tạo map các phương thức setter từ target entity
+        Map<String, Method> targetSetters = extractSetters(target);
+
+        // Duyệt qua tất cả các phương thức getter của source (DTO)
+        for (Method sourceMethod : source.getClass().getDeclaredMethods()) {
+            try {
+                if (isGetter(sourceMethod)) {
+                    String fieldName = getFieldNameFromGetter(sourceMethod);
+
+                    // Nếu target có setter tương ứng, tiến hành ánh xạ
+                    Method targetSetter = targetSetters.get(fieldName);
+                    if (targetSetter != null) {
+                        Object value = sourceMethod.invoke(source); // Lấy giá trị từ getter
+                        if (value != null) {
+                            // Gọi setter trên target với giá trị từ DTO
+                            targetSetter.invoke(target, convertValue(value, targetSetter.getParameterTypes()[0]));
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Unable to map field: " + sourceMethod.getName() + " - " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Trích xuất tất cả các phương thức setter từ đối tượng đích (target entity).
+     */
+    private static <T> Map<String, Method> extractSetters(T target) {
+        Map<String, Method> setters = new HashMap<>();
+        for (Method method : target.getClass().getDeclaredMethods()) {
+            if (method.getName().startsWith("set") && method.getParameterCount() == 1) {
+                String fieldName = method.getName().substring(3); // Lấy tên field
+                setters.put(fieldName, method); // Đưa vào map
+            }
+        }
+        return setters;
+    }
+
+    /**
+     * Kiểm tra xem phương thức có phải là getter không.
+     */
+    private static boolean isGetter(Method method) {
+        return method.getName().startsWith("get") && method.getParameterCount() == 0;
+    }
+
+    /**
+     * Lấy tên field từ getter.
+     */
+    private static String getFieldNameFromGetter(Method getter) {
+        return getter.getName().substring(3); // Lấy tên field từ getter (bỏ 'get')
+    }
+
+    /**
+     * Chuyển đổi giá trị về kiểu cần thiết.
+     */
+    private static Object convertValue(Object value, Class<?> targetType) {
+        if (targetType == Integer.class || targetType == int.class) {
+            return Integer.valueOf(value.toString());
+        }
+        if (targetType == Double.class || targetType == double.class) {
+            return Double.valueOf(value.toString());
+        }
+        return value;
+    }
+}

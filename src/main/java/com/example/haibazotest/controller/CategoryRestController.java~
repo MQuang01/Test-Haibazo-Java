@@ -1,0 +1,68 @@
+package com.example.haibazotest.controller;
+
+import com.example.haibazotest.domain.dto.req.CategoryReqDTO;
+import com.example.haibazotest.service.ICategoryService;
+import com.example.haibazotest.until.ResponseData;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/categories")
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class CategoryRestController {
+    ICategoryService categoryService;
+    @GetMapping
+    public ResponseEntity<ResponseData<?>> getCategories() {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(200)
+                        .message("Success")
+                        .data(categoryService.getAllCategory())
+                        .build()
+        );
+    }
+    @PostMapping
+    public ResponseEntity<ResponseData<?>> createCategory(@RequestBody CategoryReqDTO categoryReqDTO) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(200)
+                        .message("Success")
+                        .data(categoryService.addCategory(categoryReqDTO))
+                        .build()
+        );
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseData<?>> getCategoryById(@PathVariable String id) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(200)
+                        .message("Success")
+                        .data(categoryService.getCategoryById(Long.valueOf(id)))
+                        .build()
+        );
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseData<?>> deleteCategoryById(@PathVariable String id) {
+        categoryService.deleteCategoryById(Long.valueOf(id));
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(200)
+                        .message("Success")
+                        .build()
+        );
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseData<?>> updateCategoryById(@PathVariable String id, @RequestBody CategoryReqDTO categoryReqDTO) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(200)
+                        .message("Success")
+                        .data(categoryService.updateCategoryById(Long.valueOf(id), categoryReqDTO))
+                        .build()
+        );
+    }
+}

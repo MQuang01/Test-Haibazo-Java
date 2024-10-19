@@ -1,0 +1,17 @@
+server:
+  port: 8182
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_haibazo_test
+    username: root
+    password: Sol8ight@123./
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
