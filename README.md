@@ -1,5 +1,7 @@
 # Test-Haibazo-Java
 
+**Checkout branch develop for project**
+
 **Database design Erd**
 [Blank diagram.pdf](https://github.com/user-attachments/files/17443868/Blank.diagram.pdf)
 
